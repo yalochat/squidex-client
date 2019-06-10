@@ -1,0 +1,31 @@
+{
+  "name": "@engyalo/squidex-importer",
+  "version": "1.1.2",
+  "description": "A library to handle squidex records without the oData cognitive complexity",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha -r ts-node/register __tests__/*.ts"
+  },
+  "keywords": [
+    "squidex",
+    "cms",
+    "oData"
+  ],
+  "author": "Ricardo Fernández",
+  "license": "GPL-3.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.6",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.1.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "nock": "^10.0.6",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
