@@ -6,6 +6,7 @@ export declare class SquidexImporter {
     private squidexApiBaseUrl;
     private squidexAccessToken;
     private autoPublish;
+    private autoPaginate;
     constructor(options: any);
     connect(): Promise<AccessToken>;
     search(schema: String, content: String, field: String, equals: any, order?: String, direction?: String): Promise<any[]>;
@@ -15,6 +16,7 @@ export declare class SquidexImporter {
     update(schema: String, content: String, recordId: Number, data: Object): Promise<void>;
     delete(schema: String, content: String, recordId: Number): Promise<void>;
     setAutoPublish(autoPublish: Boolean): void;
+    setAutoPaginate(autoPaginate: Boolean): void;
     private getOnCriteria;
     private searchOnCriteria;
     private agregateResults;

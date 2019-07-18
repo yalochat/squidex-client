@@ -17,6 +17,7 @@ class SquidexImporter {
         this.squidexAuthEndpoint = options.squidexAuthEndpoint;
         this.squidexApiBaseUrl = options.squidexApiBaseUrl;
         this.autoPublish = false;
+        this.autoPaginate = false;
     }
     connect() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -116,6 +117,9 @@ class SquidexImporter {
     setAutoPublish(autoPublish) {
         this.autoPublish = autoPublish;
     }
+    setAutoPaginate(autoPaginate) {
+        this.autoPaginate = autoPaginate;
+    }
     getOnCriteria(schema, content, criteria) {
         return __awaiter(this, void 0, void 0, function* () {
             let url = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`;
@@ -129,24 +133,26 @@ class SquidexImporter {
             const result = [];
             this.agregateResults(preResult, result);
             // the pagination
-            if (preResult.total >= 200) {
-                const totalPages = Math.ceil((preResult.total / 200));
-                for (let i = 1; i < totalPages; i++) {
-                    const skip = (i * 200);
-                    if (criteria) {
-                        url = `${url}&$top=200&$skip=${skip}`;
+            if (this.autoPaginate) {
+                if (preResult.total >= 200) {
+                    const totalPages = Math.ceil((preResult.total / 200));
+                    for (let i = 1; i < totalPages; i++) {
+                        const skip = (i * 200);
+                        if (criteria) {
+                            url = `${url}&$top=200&$skip=${skip}`;
+                        }
+                        else {
+                            url = `${url}?$top=200&$skip=${skip}`;
+                        }
+                        options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
+                        preResult = yield request(options)
+                            .catch((error) => {
+                            console.log(`Error while getting records from schema: ${schema} and content: ${content} on page: ${i}`);
+                            console.log(error.error);
+                            return null;
+                        });
+                        this.agregateResults(preResult, result);
                     }
-                    else {
-                        url = `${url}?$top=200&$skip=${skip}`;
-                    }
-                    options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
-                    preResult = yield request(options)
-                        .catch((error) => {
-                        console.log(`Error while getting records from schema: ${schema} and content: ${content} on page: ${i}`);
-                        console.log(error.error);
-                        return null;
-                    });
-                    this.agregateResults(preResult, result);
                 }
             }
             return result;
@@ -165,24 +171,26 @@ class SquidexImporter {
             const result = [];
             this.agregateResults(preResult, result);
             // the pagination
-            if (preResult.total >= 200) {
-                const totalPages = Math.ceil((preResult.total / 200));
-                for (let i = 1; i < totalPages; i++) {
-                    const skip = (i * 200);
-                    if (criteria) {
-                        url = `${url}&$top=200&$skip=${skip}`;
+            if (this.autoPaginate) {
+                if (preResult.total >= 200) {
+                    const totalPages = Math.ceil((preResult.total / 200));
+                    for (let i = 1; i < totalPages; i++) {
+                        const skip = (i * 200);
+                        if (criteria) {
+                            url = `${url}&$top=200&$skip=${skip}`;
+                        }
+                        else {
+                            url = `${url}?$top=200&$skip=${skip}`;
+                        }
+                        options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
+                        preResult = yield request(options)
+                            .catch((error) => {
+                            console.log(`Error while searching record ${JSON.stringify(equals)} from schema: ${schema} and content: ${content} on page: ${i}`);
+                            console.log(error.error);
+                            return null;
+                        });
+                        this.agregateResults(preResult, result);
                     }
-                    else {
-                        url = `${url}?$top=200&$skip=${skip}`;
-                    }
-                    options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
-                    preResult = yield request(options)
-                        .catch((error) => {
-                        console.log(`Error while searching record ${JSON.stringify(equals)} from schema: ${schema} and content: ${content} on page: ${i}`);
-                        console.log(error.error);
-                        return null;
-                    });
-                    this.agregateResults(preResult, result);
                 }
             }
             return result;

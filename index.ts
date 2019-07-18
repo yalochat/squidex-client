@@ -12,6 +12,7 @@ export class SquidexImporter {
     // interanl paramteres
     private squidexAccessToken: AccessToken
     private autoPublish: Boolean
+    private autoPaginate: Boolean
 
     constructor(options: any) {
         this.squidexId = options.squidexId
@@ -19,6 +20,7 @@ export class SquidexImporter {
         this.squidexAuthEndpoint = options.squidexAuthEndpoint
         this.squidexApiBaseUrl = options.squidexApiBaseUrl
         this.autoPublish = false
+        this.autoPaginate = false
     }
 
     public async connect() {
@@ -119,6 +121,10 @@ export class SquidexImporter {
         this.autoPublish = autoPublish
     }
 
+    public setAutoPaginate(autoPaginate: Boolean) {
+      this.autoPaginate = autoPaginate
+    }
+
     private async getOnCriteria(schema: String, content: String, criteria: String) {
       let url = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`
       let options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
@@ -133,25 +139,27 @@ export class SquidexImporter {
       const result = []
       this.agregateResults(preResult, result)
       // the pagination
-      if (preResult.total >= 200) {
-        const totalPages = Math.ceil((preResult.total / 200))
+      if(this.autoPaginate) {
+        if (preResult.total >= 200) {
+          const totalPages = Math.ceil((preResult.total / 200))
 
-        for (let i = 1; i < totalPages; i++ ) {
-          const skip = (i*200)
-          if(criteria) {
-              url = `${url}&$top=200&$skip=${skip}`
-          } else {
-              url = `${url}?$top=200&$skip=${skip}`
+          for (let i = 1; i < totalPages; i++ ) {
+            const skip = (i*200)
+            if(criteria) {
+                url = `${url}&$top=200&$skip=${skip}`
+            } else {
+                url = `${url}?$top=200&$skip=${skip}`
+            }
+
+            options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
+            preResult = await request(options)
+                .catch((error: any) => {
+                    console.log(`Error while getting records from schema: ${schema} and content: ${content} on page: ${i}`)
+                    console.log(error.error)
+                    return null
+                })
+            this.agregateResults(preResult, result)
           }
-
-          options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
-          preResult = await request(options)
-              .catch((error: any) => {
-                  console.log(`Error while getting records from schema: ${schema} and content: ${content} on page: ${i}`)
-                  console.log(error.error)
-                  return null
-              })
-          this.agregateResults(preResult, result)
         }
       }
 
@@ -173,24 +181,26 @@ export class SquidexImporter {
       this.agregateResults(preResult, result)
 
       // the pagination
-      if (preResult.total >= 200) {
-        const totalPages = Math.ceil((preResult.total / 200))
+      if(this.autoPaginate) {
+        if (preResult.total >= 200) {
+          const totalPages = Math.ceil((preResult.total / 200))
 
-        for (let i = 1; i < totalPages; i++ ) {
-          const skip = (i*200)
-          if(criteria) {
-              url = `${url}&$top=200&$skip=${skip}`
-          } else {
-              url = `${url}?$top=200&$skip=${skip}`
+          for (let i = 1; i < totalPages; i++ ) {
+            const skip = (i*200)
+            if(criteria) {
+                url = `${url}&$top=200&$skip=${skip}`
+            } else {
+                url = `${url}?$top=200&$skip=${skip}`
+            }
+            options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
+            preResult = await request(options)
+                .catch((error: any) => {
+                    console.log(`Error while searching record ${JSON.stringify(equals)} from schema: ${schema} and content: ${content} on page: ${i}`)
+                    console.log(error.error)
+                    return null
+                })
+            this.agregateResults(preResult, result)
           }
-          options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
-          preResult = await request(options)
-              .catch((error: any) => {
-                  console.log(`Error while searching record ${JSON.stringify(equals)} from schema: ${schema} and content: ${content} on page: ${i}`)
-                  console.log(error.error)
-                  return null
-              })
-          this.agregateResults(preResult, result)
         }
       }
 

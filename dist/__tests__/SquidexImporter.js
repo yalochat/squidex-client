@@ -203,5 +203,14 @@ describe('Test importer', () => {
     })).timeout(5000);
     it('Orders the results', () => __awaiter(this, void 0, void 0, function* () {
         //TODO: Nock tests
+        const importer = new index_1.SquidexImporter({
+            squidexId: fakeId,
+            squidexSecret: fakeSecret,
+            squidexAuthEndpoint: fakeAuthEndpoint,
+            squidexApiBaseUrl: fakeSquidexApiBaseUrl
+        });
+        yield importer.connect();
+        const results = yield importer.get('store', 'products', 'position', 'asc');
+        console.log(results);
     })).timeout(5000);
 });
