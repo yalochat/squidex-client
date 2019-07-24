@@ -36,6 +36,23 @@ export class SquidexImporter {
         return this.searchOnCriteria(schema, content, field, equals, criteria)
     }
 
+    public async query(schema: String, content: String, query: any) {
+      let criteria = '?$filter='
+
+      const queryKeys = Object.keys(query)
+      queryKeys.forEach(key => {
+        if (isNaN(query[key])) {
+            criteria += `data/${key}/iv eq '${query[key]}' and `
+        } else {
+          criteria += `data/${key}/iv eq ${query[key]} and `
+        }
+      })
+
+      criteria = criteria.trim()
+      criteria = criteria.slice(0, -4)
+      return this.getOnCriteria(schema, content, criteria)
+    }
+
     public async getByPk(schema: String, content: String, pk: String) {
         const criteria = `?$filter=id eq '${pk}'`
         const url = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`
