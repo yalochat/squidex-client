@@ -184,8 +184,8 @@ export class SquidexImporter {
     }
 
     private async searchOnCriteria(schema: String, content: String, field: String, equals: any, criteria: String) {
-      let url = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`
-      let options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
+      let originalUrl = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`
+      let options = this.getRequestOptions('GET', originalUrl, {}, this.squidexAccessToken.accessToken)
 
       let preResult = await request(options)
           .catch((error: any) => {
@@ -201,13 +201,13 @@ export class SquidexImporter {
       if(this.autoPaginate) {
         if (preResult.total >= 200) {
           const totalPages = Math.ceil((preResult.total / 200))
-
           for (let i = 1; i < totalPages; i++ ) {
             const skip = (i*200)
+            let url
             if(criteria) {
-                url = `${url}&$top=200&$skip=${skip}`
+                let url = `${originalUrl}&$top=200&$skip=${skip}`
             } else {
-                url = `${url}?$top=200&$skip=${skip}`
+                let url = `${originalUrl}?$top=200&$skip=${skip}`
             }
             options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken)
             preResult = await request(options)
