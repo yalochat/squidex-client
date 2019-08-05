@@ -139,8 +139,8 @@ class SquidexImporter {
     }
     getOnCriteria(schema, content, criteria) {
         return __awaiter(this, void 0, void 0, function* () {
-            let url = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`;
-            let options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
+            let originalUrl = `${this.squidexApiBaseUrl}/${schema}/${content}${criteria}`;
+            let options = this.getRequestOptions('GET', originalUrl, {}, this.squidexAccessToken.accessToken);
             let preResult = yield request(options)
                 .catch((error) => {
                 console.log(`Error while getting records from schema: ${schema} and content: ${content}`);
@@ -155,11 +155,12 @@ class SquidexImporter {
                     const totalPages = Math.ceil((preResult.total / 200));
                     for (let i = 1; i < totalPages; i++) {
                         const skip = (i * 200);
+                        let url;
                         if (criteria) {
-                            url = `${url}&$top=200&$skip=${skip}`;
+                            url = `${originalUrl}&$top=200&$skip=${skip}`;
                         }
                         else {
-                            url = `${url}?$top=200&$skip=${skip}`;
+                            url = `${originalUrl}?$top=200&$skip=${skip}`;
                         }
                         options = this.getRequestOptions('GET', url, {}, this.squidexAccessToken.accessToken);
                         preResult = yield request(options)
